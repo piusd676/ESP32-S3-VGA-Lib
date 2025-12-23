@@ -80,8 +80,11 @@ extern "C" void app_main()
     */
 
     VGAESP32S3 VGADisplay;
+    VGADisplayManager VGADM;
 
     VGARes VGAResMode = VGARes::R640x480at60hz8bit;
-    VGADisplay.init(VGAResMode);
+    VGADisplay.init(VGAResMode, VGADM);
+    VGADM.displayRectangle(0x0F);
+    
 
 }

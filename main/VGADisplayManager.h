@@ -1,10 +1,15 @@
 #ifndef VGADisplayManager_h
 #define VGADisplayManager_h
 #include "VGARes.h"
+//#include "VGAESP32S3.h"
 
-class VGADisplayManager {
+class VGADisplayManager 
+{
     public:
-        void displayRectangle(int color, VGAESP32S3 VGAObj);
+        void initGraphics(void *framebuffer);
+        void displayRectangle(int color);
+
+    VGADisplayManager() {}
 };
 
 #endif
