@@ -68,7 +68,7 @@ void VGAESP32S3::init(VGARes VGAResMode, VGADisplayManager VGADisp) {
     uint16_t *pixels = (uint16_t *)framebuffer;
     uint8_t *pixels8b = (uint8_t *)framebuffer;
 
-    VGADisp.initGraphics(framebuffer);
+    VGADisp.initGraphics(framebuffer, VGAResMode.hres, VGAResMode.vres, VGAResMode.bitsperpixel);
 
     esp_cache_msync(framebuffer, 640*480, ESP_CACHE_MSYNC_FLAG_DIR_C2M);
 }
