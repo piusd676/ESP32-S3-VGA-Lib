@@ -7,15 +7,18 @@
 #include "driver/gpio.h"
 #include "esp_timer.h"
 #include "esp_log.h"
+#include "VGAESP32S3.h"
 
+/*
 void *framebuffer = NULL;
 
 int width = 640;
 int height = 480;
 int pxcnter = 0;
-
+*/
 extern "C" void app_main()
 {
+    /*
     //declarations
     esp_lcd_panel_handle_t panel_handle = NULL;
     esp_lcd_rgb_panel_config_t panel_config = {
@@ -74,5 +77,11 @@ extern "C" void app_main()
     uint8_t *pixels = (uint8_t *)framebuffer;
 
     esp_cache_msync(framebuffer, 640*480, ESP_CACHE_MSYNC_FLAG_DIR_C2M);
+    */
+
+    VGAESP32S3 VGADisplay;
+
+    VGARes VGAResMode = VGARes::R640x480at60hz8bit;
+    VGADisplay.init(VGAResMode);
 
 }

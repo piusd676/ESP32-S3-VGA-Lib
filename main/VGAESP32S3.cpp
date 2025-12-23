@@ -1,4 +1,3 @@
-#include "Arduino.h"
 #include "VGAESP32S3.h"
 
 void *framebuffer = 0;

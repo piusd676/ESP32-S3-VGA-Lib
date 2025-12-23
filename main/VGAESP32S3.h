@@ -1,10 +1,9 @@
 /*
     Test for making libraries for Arduino
 */
-#ifndef VGAESP32S3.h
-#define VGAESP32S3.h
-#include "Arduino.h"
-#include "VGADisplayManager.h"
+#ifndef VGAESP32S3_h
+#define VGAESP32S3_h
+#include "VGARes.h"
 
 class VGAESP32S3
 {
@@ -18,3 +17,4 @@ class VGAESP32S3
         void *framebuffer;
 };
 
+#endif

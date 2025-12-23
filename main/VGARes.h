@@ -1,7 +1,6 @@
-#ifndef VGARes.h
-#define VGARes.h
+#ifndef VGARes_h
+#define VGARes_h
 
-#include "Arduino.h"
 #include "esp_lcd_panel_rgb.h"
 #include "esp_lcd_panel_ops.h"
 #include "esp_mac.h"
@@ -18,32 +17,34 @@ class VGARes {
         static VGARes R640x480at60hz8bit;
         static VGARes R640x480at60hz4bit;
         static VGARes R640x480at60hz3bit;
-        int pixelclockhz;
-        int hres;
-        int vres;
-        int hsyncpulsewidth;
-        int hsyncbackwidth;
-        int hsyncfrontwidth;
-        int vsyncpulsewidth;
-        int vsyncbackwidth;
-        int vsyncfrontwidth;
-        int hsyncidlelow;
-        int vsyncidlelow;
-        int pclkactivenegative;
-        int datawidth;
-        int bitsperpixel;
-        int num_frbfs;
-        int bouncebfrsize;
-        int sramtransalign;
-        int psramtransalign;
+        uint32_t pixelclockhz;
+        uint32_t hres;
+        uint32_t vres;
+        uint32_t hsyncpulsewidth;
+        uint32_t hsyncbackwidth;
+        uint32_t hsyncfrontwidth;
+        uint32_t vsyncpulsewidth;
+        uint32_t vsyncbackwidth;
+        uint32_t vsyncfrontwidth;
+        uint32_t hsyncidlelow;
+        uint32_t vsyncidlelow;
+        uint32_t pclkactivenegative;
+        size_t datawidth;
+        size_t bitsperpixel;
+        size_t num_frbfs;
+        size_t bouncebfrsize;
+        size_t sramtransalign;
+        size_t psramtransalign;
         int hsyncgpio;
         int vsyncgpio;
         int datagpios[16];
-        int dbfb;
+        uint32_t dbfb;
 
-    void Mode(int cpixelclockhz, int hres, int vres, int hsyncpw, int hsyncbw, int hsyncfw, int vsyncpw, int vsyncbw, int vsyncfw, 
-        int hsyncidlelow, int vsyncidlelow, int pclkactivenegative, int datawidth, int bitsperpixel, int num_frbfs, int bouncebfrsize,
-        int sramtransalign, int psramtransalign, int hsyncgpio, int vsyncgpio, int datagpios[16], int dbfb) {
+    void Mode(uint32_t cpixelclockhz, uint32_t hres, uint32_t vres, uint32_t hsyncpw, uint32_t hsyncbw, uint32_t hsyncfw, uint32_t vsyncpw, uint32_t vsyncbw, uint32_t vsyncfw, 
+        uint32_t hsyncidlelow, uint32_t vsyncidlelow, uint32_t pclkactivenegative, size_t datawidth, size_t bitsperpixel, size_t num_frbfs, size_t bouncebfrsize,
+        size_t sramtransalign, size_t psramtransalign, int hsyncgpio, int vsyncgpio, int datagpios[16], uint32_t dbfb) {
 
         }
 };
+
+#endif
