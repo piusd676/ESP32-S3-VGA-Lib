@@ -10,6 +10,7 @@
 #include "esp_timer.h"
 #include "esp_log.h"
 #include "VGARes.h"
+#include "VGADisplayManager.h"
 
 void VGAESP32S3::init(VGARes VGAResMode) {
     

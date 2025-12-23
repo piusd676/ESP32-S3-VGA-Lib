@@ -1,5 +1,4 @@
 #include "Arduino.h"
-#include "VGAESP32S3.h"
 #include "esp_lcd_panel_rgb.h"
 #include "esp_lcd_panel_ops.h"
 #include "esp_mac.h"
