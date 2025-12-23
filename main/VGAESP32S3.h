@@ -12,5 +12,5 @@ class VGAESP32S3
         esp_lcd_panel_handle_t panel_config;
         uint16_t *pixels;
         uint8_t *pixels8b;
-}
+};
 
