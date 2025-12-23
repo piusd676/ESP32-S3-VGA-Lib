@@ -44,4 +44,4 @@ class VGARes {
         int sramtransalign, int psramtransalign, int hsyncgpio, int vsyncgpio, int datagpios[16], int dbfb) {
 
         }
-}
+};
