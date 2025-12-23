@@ -7,8 +7,7 @@ class VGADisplayManager
 {
     public:
         void initGraphics(void *framebuffer, int width, int height, int bitpp);
-        void display();
-        void displayRectangle(int color);
+        void displayRectangle(int color, int px, int py, int rwidth, int rheight);
 
     VGADisplayManager() {}
 };

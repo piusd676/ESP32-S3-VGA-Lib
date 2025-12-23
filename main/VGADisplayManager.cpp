@@ -28,15 +28,17 @@ void VGADisplayManager::initGraphics(void *framebuffer, int width, int height, i
     for(int i = 0; i < frame.size(); i++) {
         frame[i].resize(width);
     }
-}
-
-void VGADisplayManager::display() {
     for(int y = 0; y < frame.size(); y++) {
-        for(int x = 0; x < frame[i].size(); x++) {
-            pixels[]
+        for(int x = 0; x < frame[y].size(); x++) {
+            frame[y][x] = 0;
         }
     }
 }
 
-void VGADisplayManager::displayRectangle(int color, int x, int y, int rwidth, int wheight) {
+void VGADisplayManager::displayRectangle(int color, int px, int py, int rwidth, int rheight) {
+    for(int y = py; y < (py + rheight); y++) {
+        for(int x = px; x < (px + rwidth); x++) {
+            pixels8[y * 640 + x] = color;
+        }
+    }
 }
