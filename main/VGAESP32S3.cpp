@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include "VGAESP32S3.h"
-#include "VGARes.h"
-#include "VGADisplayManager.h"
+
+void *framebuffer = 0;
 
 void VGAESP32S3::init(VGARes VGAResMode) {
     
@@ -59,7 +59,8 @@ void VGAESP32S3::init(VGARes VGAResMode) {
             .fb_in_psram = 1,
             .double_fb = VGAResMode.dbfb,
         },
-    }
+    };
+    ESP_ERROR_CHECK(esp_lcd_new_rgb_panel(&panel_config, &panel_handle));
 
     esp_lcd_panel_init(panel_handle);
 

@@ -1,3 +1,6 @@
+#ifndef VGARes.h
+#define VGARes.h
+
 #include "Arduino.h"
 #include "esp_lcd_panel_rgb.h"
 #include "esp_lcd_panel_ops.h"
@@ -8,7 +11,6 @@
 #include "driver/gpio.h"
 #include "esp_timer.h"
 #include "esp_log.h"
-#include "Arduino.h"
 
 class VGARes {
     public:

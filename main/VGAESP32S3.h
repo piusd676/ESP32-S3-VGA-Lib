@@ -1,6 +1,8 @@
 /*
     Test for making libraries for Arduino
 */
+#ifndef VGAESP32S3.h
+#define VGAESP32S3.h
 #include "Arduino.h"
 #include "VGADisplayManager.h"
 
@@ -12,5 +14,7 @@ class VGAESP32S3
         esp_lcd_panel_handle_t panel_config;
         uint16_t *pixels;
         uint8_t *pixels8b;
+    private:
+        void *framebuffer;
 };
 
