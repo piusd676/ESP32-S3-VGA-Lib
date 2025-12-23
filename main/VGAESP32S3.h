@@ -3,10 +3,11 @@
 */
 
 #include "Arduino.h"
+#include "VGAres.h"
 
-class VGAESO32S3
+class VGAESP32S3
 {
-    public:
+    private:
         esp_lcd_panel_handle_t panel_handle;
         esp_lcd_panel_handle_t panel_config;
 }
