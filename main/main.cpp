@@ -73,25 +73,6 @@ extern "C" void app_main()
 
     uint8_t *pixels = (uint8_t *)framebuffer;
 
-    for(int y = 0; y < (height*width); y++) {
-        if(y < (470*width)) {
-            pixels[y] = 0xF2;
-        }
-        else{
-            if(pxcnter % 2 == 0) {
-                pixels[y] = 0x00;
-                pxcnter++;
-            }
-            else{
-                pixels[y] = 0xFF;
-                pxcnter++;
-            }
-        }
-
-        if(y % 640 == 0) {
-            pxcnter++;
-        }
-    }
     esp_cache_msync(framebuffer, 640*480, ESP_CACHE_MSYNC_FLAG_DIR_C2M);
 
 }
