@@ -59,4 +59,5 @@ void VGAESP32S3::init() {
             .fb_in_psram = 1,
             .double_fb = 0,
         },
+    }
 }
