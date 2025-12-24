@@ -45,3 +45,22 @@ void VGADisplayManager::displayRectangle(int color, int px, int py, int rwidth, 
         }
     }
 }
+
+void VGADisplayManager::setBackground(int color) {
+    if(bitpp == 8) {
+        for(int y = 0; y < height; y++) {
+            for(int x = 0; x < width; x++) {
+                pixels8[y * 640 + x] = color;
+            }
+        }
+    }
+    if(bitpp == 16) {
+        for(int y = 0; y < height; y++) {
+            for(int x = 0; x < width; x++) {
+                pixels[y * 640 + x] = color;
+            }
+        }
+    }
+}
+
+//TODO:Circle, Oval, Line, Loading picture

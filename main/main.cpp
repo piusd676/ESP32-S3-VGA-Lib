@@ -84,11 +84,17 @@ extern "C" void app_main()
 
     VGARes VGAResMode = VGARes::R640x480at60hz8bit;
     VGADisplay.init(VGAResMode, VGADM);
-    VGADM.displayRectangle(0xFF, 50, 0, 500, 400);
-    VGADM.displayRectangle(0xA6, 5, 90, 50, 50);
-    VGADM.displayRectangle(0x99, 502, 240, 100, 20);
-    VGADM.displayRectangle(0xFF, 50, 0, 500, 400);
-    VGADM.displayRectangle(0x22, 400, 200, 40, 50);
+    VGADM.setBackground(0xFF);
+    vTaskDelay(pdMS_TO_TICKS(10000));
+    VGADM.displayRectangle(0x00, 0, 0, 80, 480);
+    VGADM.displayRectangle(0x11, 80, 0, 80, 480);
+    VGADM.displayRectangle(0x22, 160, 0, 80, 480);
+    VGADM.displayRectangle(0x33, 240, 0, 80, 480);
+    VGADM.displayRectangle(0x44, 320, 0, 80, 480);
+    VGADM.displayRectangle(0x55, 400, 0, 80, 480);
+    VGADM.displayRectangle(0x66, 480, 0, 80, 480);
+    VGADM.displayRectangle(0x77, 560, 0, 80, 480);
+    vTaskDelay(pdMS_TO_TICKS(5000));
     for(int i = 0; i < 240; i++) {
         VGADM.displayRectangle(0xA6, i*2, i*2, 250, 250);
         vTaskDelay(pdMS_TO_TICKS(250));
