@@ -94,12 +94,13 @@ extern "C" void app_main()
     VGADM.displayRectangle(0x55, 400, 0, 80, 480);
     VGADM.displayRectangle(0x66, 480, 0, 80, 480);
     VGADM.displayRectangle(0x77, 560, 0, 80, 480);
+    VGADM.displayCircle(0x55, 320, 240, 50, true);
     vTaskDelay(pdMS_TO_TICKS(5000));
     for(int i = 0; i < 240; i++) {
         VGADM.displayRectangle(0xA6, i*2, i*2, 250, 250);
-        vTaskDelay(pdMS_TO_TICKS(250));
+        vTaskDelay(pdMS_TO_TICKS(25));
         VGADM.displayRectangle(0x99, (i*2)+1, (i*2)+1, 250, 250);
-        vTaskDelay(pdMS_TO_TICKS(250));
+        vTaskDelay(pdMS_TO_TICKS(25));
     }
     
 
