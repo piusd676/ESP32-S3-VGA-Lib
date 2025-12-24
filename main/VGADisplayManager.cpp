@@ -8,6 +8,7 @@
 #include "esp_timer.h"
 #include "esp_log.h"
 #include <cmath>
+#include <esp_heap_caps.h>
 #include "VGADisplayManager.h"
 #include "VGAESP32S3.h"
 
@@ -29,7 +30,7 @@ void VGADisplayManager::initGraphics(void *framebuffer, int pwidth, int pheight,
     bitpp = pbitpp;
 }
 
-void VGADisplayManager::displayRectangle(int color, int px, int py, int rwidth, int rheight) {
+void VGADisplayManager::displayRectangle(EXT_RAM_ATTR int color, EXT_RAM_ATTR int px, EXT_RAM_ATTR int py, EXT_RAM_ATTR int rwidth,EXT_RAM_ATTR int rheight) {
     if(bitpp == 8) {                                    //Test 8 bit or 16 bit output(anything between 3-8 bit uses 8 bit, anything above uses 16 bit)
         for(int y = py; y < (py + rheight); y++) {
             for(int x = px; x < (px + rwidth); x++) {
@@ -60,14 +61,25 @@ void VGADisplayManager::displayCircle(int color, int centerx, int centery, int r
 
     if(bitpp == 8) {
         if(fill) {
-            for(int radius2 = 0; radius2 <= radius; radius2++) {
-                circircu = M_PI * 4 * radius2;
-                anglesteps = (2*M_PI)/circircu;
-                for(int i = 0; i < circircu; i++) {
-                    pix = centerx + radius2 * sin(i*anglesteps);
-                    piy = centery + radius2 * cos(i*anglesteps);
-                    pixels8[piy * width + pix] = color;
-                }
+            for(int i = 0; i < circircu/4; i++) {           //Filling bottom-right quadrant
+                pix = centerx + radius * sin(i*anglesteps);
+                piy = centery + radius * cos(i*anglesteps);
+                displayRectangle(color, centerx, centery, (pix-centerx), (piy-centery));
+            }
+            for(int i = circircu/4; i < circircu/2; i++) {  //Filling top-right quadrant
+                pix = centerx + radius * sin(i*anglesteps);
+                piy = centery + radius * cos(i*anglesteps);
+                displayRectangle(color, centerx, piy, (pix-centerx), (centery-piy));
+            }                                               //Filling top-left quadrant
+            for(int i = circircu/2; i < 3*(circircu/4); i++) {
+                pix = centerx + radius * sin(i*anglesteps);
+                piy = centery + radius * cos(i*anglesteps);
+                displayRectangle(color, pix, piy, (centerx-pix), (centery-piy));
+            }                                               //Filling bottom-left quadrant
+            for(int i = 3*(circircu/4); i < circircu; i++) {
+                pix = centerx + radius * sin(i*anglesteps);
+                piy = centery + radius * cos(i*anglesteps);
+                displayRectangle(color, pix, centery, (centerx-pix), (piy-centery));
             }
         }
         else{
