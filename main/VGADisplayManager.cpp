@@ -10,16 +10,18 @@
 #include <cmath>
 #include <esp_heap_caps.h>
 #include <string>
+#include <vector>
 #include "VGADisplayManager.h"
 #include "VGAESP32S3.h"
 
 static uint8_t *pixels8 = NULL;
 static uint16_t *pixels = NULL;
+std::vector<std::vector<std::vector<int>>> frames;
 int bitpp = 0;
 int width = 0;
 int height = 0;
 
-void VGADisplayManager::initGraphics(void *framebuffer, int pwidth, int pheight, int pbitpp) {
+void VGADisplayManager::initGraphics(void *framebuffer, int pwidth, int pheight, int pbitpp, int framebuffernr) {
 
     width = pwidth;
     height = pheight;
@@ -27,7 +29,38 @@ void VGADisplayManager::initGraphics(void *framebuffer, int pwidth, int pheight,
     pixels = (uint16_t *)framebuffer;
     pixels8 = (uint8_t *)framebuffer;
 
+    frames = heap_caps_calloc(pheight*pwidth, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM);
+
+    frames.resize(framebuffernr);
+    for(int i = 0; i < framebuffernr; i++) {
+        frames[i].resize(pheight);
+        for(int j = 0; j < pheight; j++) {
+            frames[i][j].resize(pwidth);
+        }
+    }
+
     bitpp = pbitpp;
+}
+
+void VGADisplayManager::display() {     //writes changes to PSRAM for DMA to pick up
+    if(bitpp == 8) {
+        for(int i = 0; i < frames.size(); i++) {
+            for(int y = 0; y < frames[i].size(); y++) {
+                for(int x = 0; x < frames[i][y].size(); x++) {
+                    pixels8[y * width + x] = frames[i][y][x];
+                }
+            }
+        }
+    }
+    else{
+        for(int i = 0; i < frames.size(); i++) {
+            for(int y = 0; y < frames[i].size(); y++) {
+                for(int x = 0; x < frames[i][y].size(); x++) {
+                    pixels8[y * width + x] = frames[i][y][x];
+                }
+            }
+        }
+    }
 }
 
 void VGADisplayManager::displayRectangle(EXT_RAM_BSS_ATTR int color, EXT_RAM_BSS_ATTR int px, EXT_RAM_BSS_ATTR int py, EXT_RAM_BSS_ATTR int rwidth,EXT_RAM_BSS_ATTR int rheight) {
@@ -127,7 +160,6 @@ void VGADisplayManager::displayLine(EXT_RAM_BSS_ATTR int color, EXT_RAM_BSS_ATTR
 
     //Declaration Variables
     EXT_RAM_BSS_ATTR double slope = 0;  //slope of line
-    EXT_RAM_BSS_ATTR double length = 0; //length of line to determine how many points need to be
     EXT_RAM_BSS_ATTR double lengthx = 0;
     EXT_RAM_BSS_ATTR double lengthy = 0;
     EXT_RAM_BSS_ATTR int valuef = 0;
@@ -148,8 +180,6 @@ void VGADisplayManager::displayLine(EXT_RAM_BSS_ATTR int color, EXT_RAM_BSS_ATTR
         slope = lengthy/lengthx;
         //printf("Slope is %f\n",slope);
 
-        //Calculating length
-        length = sqrt(pow(lengthx, 2) + pow(lengthy, 2));
         //printf("length is %f\n",length);
 
         //Drawing angled line
@@ -211,17 +241,49 @@ void VGADisplayManager::displayLine(EXT_RAM_BSS_ATTR int color, EXT_RAM_BSS_ATTR
     }
 }
 
-void VGADisplayManager::loadPicture(std::string imgname, int posx, int posy, int xwidth, int yheight) {
+void VGADisplayManager::loadPicture(std::string imgname, int posx, int posy, int xwidth, int yheight, int imgx, int imgy) {
 
     //Image parameters
     extern const uint8_t image_start8[] asm("_binary_output_raw_start");
     extern const uint16_t image_start[] asm("_binary_output_raw_start");
 
-    //using a pointer to manipulate image data
-    const uint8_t *img8 = (uint8_t)image_start8;
-    const uint16_t *img = (uint16_t)image_start;
+    //Catching picture loads across the entire screen with exact good values
+    if((imgx == width) & (xwidth == width) & (imgy == height) & (height == yheight)) {
+        if(bitpp == 8) {
+            memcpy(pixels8, image_start, height*width);
+        }else{
+            memcpy(pixels, image_start, height*width);
+        }
+    }
 
-    //memcpy(pixels8, image_start, height*width);
+    //using a pointer to manipulate image data
+    const uint8_t *img8 = (uint8_t *)image_start8;
+    const uint16_t *img = (uint16_t *)image_start;
+
+    //Assumption until metadata implemented:img is sized to width, height of display image
+    //Calculating steps
+    double xsteps = imgx/xwidth;
+    double ysteps = imgy/yheight;
+    int xval = 0;
+    int yval = 0;
+
+    if(bitpp == 8) {
+        for(int y = posy; y < (posy + yheight); y++) {
+            for(int x = posx; x < (posx + xwidth); x++) {
+                yval = (y-posy)*ysteps;
+                xval = (x-posx)*xsteps;
+                pixels8[y * width + x] = img8[yval * width + xval]; 
+            }
+        }
+    }else{
+        for(int y = posy; y < (posy + yheight); y++) {
+            for(int x = posx; x < (posx + xwidth); x++) {
+                yval = (y-posy)*ysteps;
+                xval = (x-posx)*xsteps;
+                pixels[y * width + x] = img8[yval * width + xval]; 
+            }
+        }
+    }
 }
 
 void VGADisplayManager::setBackground(int color) {

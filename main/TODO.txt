@@ -1,2 +1,4 @@
-[]VGADisplayManager: Circle, Oval, Line, Loading picture, layer management, Text display, playing video, incl. metadata
+[]VGADisplayManager: Circle, Oval, Line, Loading picture, layer management, Text display, playing video, incl. metadata, Objects for draw Methods to simplify implementation of scroll logic
+-> seperate array for easily moving objects like circles
 [Test programs]:Colors, functions, self verification
+Fetch img dimensions from metadata once implemented, implement img chooser(using string)

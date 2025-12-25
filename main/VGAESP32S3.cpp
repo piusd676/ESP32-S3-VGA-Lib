@@ -67,7 +67,7 @@ void VGAESP32S3::init(VGARes VGAResMode, VGADisplayManager VGADisp) {
 
     esp_lcd_rgb_panel_get_frame_buffer(panel_handle, 1, &framebuffer);
 
-    VGADisp.initGraphics(framebuffer, VGAResMode.hres, VGAResMode.vres, VGAResMode.bitsperpixel);
+    VGADisp.initGraphics(framebuffer, VGAResMode.hres, VGAResMode.vres, VGAResMode.bitsperpixel, 2);
 
     esp_cache_msync(framebuffer, 640*480, ESP_CACHE_MSYNC_FLAG_DIR_C2M);
 }
