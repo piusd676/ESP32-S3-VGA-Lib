@@ -1,2 +1,2 @@
-[]VGADisplayManager: Circle, Oval, Line, Loading picture, layer management, Text display
+[]VGADisplayManager: Circle, Oval, Line, Loading picture, layer management, Text display, playing video, incl. metadata
 [Test programs]:Colors, functions, self verification

@@ -9,6 +9,7 @@
 #include "esp_log.h"
 #include <cmath>
 #include <esp_heap_caps.h>
+#include <string>
 #include "VGADisplayManager.h"
 #include "VGAESP32S3.h"
 
@@ -208,13 +209,19 @@ void VGADisplayManager::displayLine(EXT_RAM_BSS_ATTR int color, EXT_RAM_BSS_ATTR
             }
         }
     }
+}
 
-    //Drawing angled line
-    for(int i = -(width/2); i < width/2; i++) {
-        for(int j = 0; j < length; j++) {
+void VGADisplayManager::loadPicture(std::string imgname, int posx, int posy, int xwidth, int yheight) {
 
-        }
-    }
+    //Image parameters
+    extern const uint8_t image_start8[] asm("_binary_output_raw_start");
+    extern const uint16_t image_start[] asm("_binary_output_raw_start");
+
+    //using a pointer to manipulate image data
+    const uint8_t *img8 = (uint8_t)image_start8;
+    const uint16_t *img = (uint16_t)image_start;
+
+    //memcpy(pixels8, image_start, height*width);
 }
 
 void VGADisplayManager::setBackground(int color) {

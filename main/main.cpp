@@ -95,6 +95,8 @@ extern "C" void app_main()
     VGADM.displayRectangle(0x55, 400, 0, 80, 480);
     VGADM.displayRectangle(0x66, 480, 0, 80, 480);
     VGADM.displayRectangle(0x77, 560, 0, 80, 480);
+    vTaskDelay(pdMS_TO_TICKS(10000));
+    VGADM.loadPicture("H", 1, 1, 1 ,1);
     //VGADM.displayCircle(0x55, 320, 240, 50, true);
     /*
     vTaskDelay(pdMS_TO_TICKS(5000));
