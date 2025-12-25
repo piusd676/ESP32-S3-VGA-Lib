@@ -78,6 +78,7 @@ extern "C" void app_main()
 
     esp_cache_msync(framebuffer, 640*480, ESP_CACHE_MSYNC_FLAG_DIR_C2M);
     */
+    setvbuf(stdout, NULL, _IONBF, 0);
 
     VGAESP32S3 VGADisplay;
     VGADisplayManager VGADM;
@@ -85,7 +86,7 @@ extern "C" void app_main()
     VGARes VGAResMode = VGARes::R640x480at60hz8bit;
     VGADisplay.init(VGAResMode, VGADM);
     VGADM.setBackground(0xFF);
-    vTaskDelay(pdMS_TO_TICKS(10000));
+    vTaskDelay(pdMS_TO_TICKS(5000));
     VGADM.displayRectangle(0x00, 0, 0, 80, 480);
     VGADM.displayRectangle(0x11, 80, 0, 80, 480);
     VGADM.displayRectangle(0x22, 160, 0, 80, 480);
@@ -94,7 +95,8 @@ extern "C" void app_main()
     VGADM.displayRectangle(0x55, 400, 0, 80, 480);
     VGADM.displayRectangle(0x66, 480, 0, 80, 480);
     VGADM.displayRectangle(0x77, 560, 0, 80, 480);
-    VGADM.displayCircle(0x55, 320, 240, 50, true);
+    //VGADM.displayCircle(0x55, 320, 240, 50, true);
+    /*
     vTaskDelay(pdMS_TO_TICKS(5000));
     for(int i = 0; i < 240; i++) {
         VGADM.displayRectangle(0xA6, i*2, i*2, 250, 250);
@@ -102,6 +104,6 @@ extern "C" void app_main()
         VGADM.displayRectangle(0x99, (i*2)+1, (i*2)+1, 250, 250);
         vTaskDelay(pdMS_TO_TICKS(25));
     }
-    
+    */
 
 }

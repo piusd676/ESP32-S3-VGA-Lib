@@ -1,9 +1,11 @@
 #include "VGAESP32S3.h"
 
-void *framebuffer = 0;
+void *framebuffer;
 
 void VGAESP32S3::init(VGARes VGAResMode, VGADisplayManager VGADisp) {
     
+    framebuffer = heap_caps_calloc(VGAResMode.hres*VGAResMode.vres, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM);
+
     esp_lcd_panel_handle_t panel_handle = NULL;
     esp_lcd_rgb_panel_config_t panel_config = {
         .clk_src = LCD_CLK_SRC_PLL160M,
@@ -64,9 +66,6 @@ void VGAESP32S3::init(VGARes VGAResMode, VGADisplayManager VGADisp) {
     esp_lcd_panel_init(panel_handle);
 
     esp_lcd_rgb_panel_get_frame_buffer(panel_handle, 1, &framebuffer);
-
-    uint16_t *pixels = (uint16_t *)framebuffer;
-    uint8_t *pixels8b = (uint8_t *)framebuffer;
 
     VGADisp.initGraphics(framebuffer, VGAResMode.hres, VGAResMode.vres, VGAResMode.bitsperpixel);
 
