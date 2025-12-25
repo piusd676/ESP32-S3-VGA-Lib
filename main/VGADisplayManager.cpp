@@ -16,7 +16,7 @@
 
 static uint8_t *pixels8 = NULL;
 static uint16_t *pixels = NULL;
-std::vector<std::vector<std::vector<int>>> frames;
+EXT_RAM_BSS_ATTR std::vector<std::vector<std::vector<int>>> frames;
 int bitpp = 0;
 int width = 0;
 int height = 0;
@@ -28,8 +28,6 @@ void VGADisplayManager::initGraphics(void *framebuffer, int pwidth, int pheight,
 
     pixels = (uint16_t *)framebuffer;
     pixels8 = (uint8_t *)framebuffer;
-
-    frames = heap_caps_calloc(pheight*pwidth, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM);
 
     frames.resize(framebuffernr);
     for(int i = 0; i < framebuffernr; i++) {
