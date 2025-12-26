@@ -16,7 +16,8 @@
 
 static uint8_t *pixels8 = NULL;
 static uint16_t *pixels = NULL;
-EXT_RAM_BSS_ATTR std::vector<std::vector<std::vector<int>>> frames;
+uint8_t* layers[4];
+bool* mask[3];
 int bitpp = 0;
 int width = 0;
 int height = 0;
@@ -26,46 +27,85 @@ void VGADisplayManager::initGraphics(void *framebuffer, int pwidth, int pheight,
     width = pwidth;
     height = pheight;
 
+    /*
+    layer0 = (uint16_t *)heap_caps_calloc(width*height, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM); //Bottom layer
+    layer1 = (uint16_t *)heap_caps_calloc(width*height, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM); //Middle layer
+    layer2 = (uint16_t *)heap_caps_calloc(width*height, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM); //Top layer
+    */
+
+    for(int i = 0; i < 3; i++) {
+        layers[i] = (uint8_t *)heap_caps_calloc(width*height, sizeof(uint8_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM);
+        mask[i] =  (bool *)heap_caps_calloc(width*height, sizeof(bool), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM);
+    }
+
     pixels = (uint16_t *)framebuffer;
     pixels8 = (uint8_t *)framebuffer;
-
-    frames.resize(framebuffernr);
-    for(int i = 0; i < framebuffernr; i++) {
-        frames[i].resize(pheight);
-        for(int j = 0; j < pheight; j++) {
-            frames[i][j].resize(pwidth);
-        }
-    }
+    layers[3] = pixels8;
 
     bitpp = pbitpp;
 }
 
-void VGADisplayManager::display() {     //writes changes to PSRAM for DMA to pick up
+void VGADisplayManager::display(int startx, int starty, int endx, int endy) {     //writes changes to PSRAM for DMA to pick up
+    
+    //Variable declarations
+    int currentrow = 0;
+    int currentpx = 0;
+
     if(bitpp == 8) {
-        for(int i = 0; i < frames.size(); i++) {
-            for(int y = 0; y < frames[i].size(); y++) {
-                for(int x = 0; x < frames[i][y].size(); x++) {
-                    pixels8[y * width + x] = frames[i][y][x];
+        for(int y = starty; y < endy; y++) {
+            currentrow = y * width;
+            for(int x = startx; x < endx; x++) {
+                currentpx = currentrow + x;
+                pixels8[currentpx] = layers[2][currentpx];
+                if(mask[2][currentpx] == true) {
+                    continue;
+                }
+                else{
+                    pixels8[currentpx] = layers[1][currentpx];
+                    if(mask[1][currentpx] == true) {
+                        continue;
+                    }
+                    else{
+                        pixels8[currentpx] = layers[0][currentpx];
+                    }
                 }
             }
         }
     }
     else{
-        for(int i = 0; i < frames.size(); i++) {
-            for(int y = 0; y < frames[i].size(); y++) {
-                for(int x = 0; x < frames[i][y].size(); x++) {
-                    pixels8[y * width + x] = frames[i][y][x];
+        for(int y = 0; y < height; y++) {
+            for(int x = 0; x < width; x++) {
+                pixels[y * width + x] = layers[2][y * width + x];
+                if(layers[2][y * width + x] & 0x80) {
+                    continue;
+                }
+                else{
+                    pixels[y * width + x] = layers[1][y * width + x];
+                    if(layers[1][y * width + x] & 0x80) {
+                        continue;
+                    }
+                    else{
+                        pixels[y * width + x] = layers[0][y * width + x];
+                    }
                 }
             }
         }
     }
 }
 
-void VGADisplayManager::displayRectangle(EXT_RAM_BSS_ATTR int color, EXT_RAM_BSS_ATTR int px, EXT_RAM_BSS_ATTR int py, EXT_RAM_BSS_ATTR int rwidth,EXT_RAM_BSS_ATTR int rheight) {
-    if(bitpp == 8) {                                    //Test 8 bit or 16 bit output(anything between 3-8 bit uses 8 bit, anything above uses 16 bit)
+void VGADisplayManager::displayRectangle(EXT_RAM_BSS_ATTR int color, EXT_RAM_BSS_ATTR int px, EXT_RAM_BSS_ATTR int py, EXT_RAM_BSS_ATTR int rwidth,EXT_RAM_BSS_ATTR int rheight, EXT_RAM_BSS_ATTR int layer) {
+    
+    //Variable declarations
+    int currentrow = 0;
+    int currentpx = 0;
+    
+    if(bitpp == 8) {                                    //pixels8[y * width + x] = color;Test 8 bit or 16 bit output(anything between 3-8 bit uses 8 bit, anything above uses 16 bit)
         for(int y = py; y < (py + rheight); y++) {
+            currentrow = y * width;
             for(int x = px; x < (px + rwidth); x++) {
-                pixels8[y * width + x] = color;
+                currentpx = currentrow + x;
+                layers[layer][currentpx] = color;
+                mask[layer][currentpx] = true;
             }
         }
     }
@@ -78,7 +118,8 @@ void VGADisplayManager::displayRectangle(EXT_RAM_BSS_ATTR int color, EXT_RAM_BSS
     }
 }
 
-void VGADisplayManager::displayCircle(int color, int centerx, int centery, int radius, bool fill) {
+
+void VGADisplayManager::displayCircle(int color, int centerx, int centery, int radius, bool fill, int layer) {
 
     //Calculate area of circle to figure out angles
     int circircu = 0;           //Circumference for the amount of pixels drawn
@@ -90,67 +131,34 @@ void VGADisplayManager::displayCircle(int color, int centerx, int centery, int r
     circircu = M_PI * 4 * radius;
     anglesteps = (2*M_PI)/circircu;
 
-    if(bitpp == 8) {                        //Testing for bits
-        if(fill) {
-            for(int i = 0; i < circircu/4; i++) {           //Filling bottom-right quadrant
-                pix = centerx + radius * sin(i*anglesteps);
-                piy = centery + radius * cos(i*anglesteps);
-                displayRectangle(color, centerx, centery, (pix-centerx), (piy-centery));
-            }
-            for(int i = circircu/4; i < circircu/2; i++) {  //Filling top-right quadrant
-                pix = centerx + radius * sin(i*anglesteps);
-                piy = centery + radius * cos(i*anglesteps);
-                displayRectangle(color, centerx, piy, (pix-centerx), (centery-piy));
-            }                                               //Filling top-left quadrant
-            for(int i = circircu/2; i < 3*(circircu/4); i++) {
-                pix = centerx + radius * sin(i*anglesteps);
-                piy = centery + radius * cos(i*anglesteps);
-                displayRectangle(color, pix, piy, (centerx-pix), (centery-piy));
-            }                                               //Filling bottom-left quadrant
-            for(int i = 3*(circircu/4); i < circircu; i++) {
-                pix = centerx + radius * sin(i*anglesteps);
-                piy = centery + radius * cos(i*anglesteps);
-                displayRectangle(color, pix, centery, (centerx-pix), (piy-centery));
-            }
+    if(fill) {
+        for(int i = 0; i < circircu/4; i++) {           //Filling bottom-right quadrant
+            pix = centerx + radius * sin(i*anglesteps);
+            piy = centery + radius * cos(i*anglesteps);
+            displayRectangle(color, centerx, centery, (pix-centerx), (piy-centery), layer);
         }
-        else{
-            for(int i = 0; i < circircu; i++) {
-                pix = centerx + radius * sin(i*anglesteps);
-                piy = centery + radius * cos(i*anglesteps);
-                pixels8[piy * width + pix] = color;
-            }   
+        for(int i = circircu/4; i < circircu/2; i++) {  //Filling top-right quadrant
+            pix = centerx + radius * sin(i*anglesteps);
+            piy = centery + radius * cos(i*anglesteps);
+            displayRectangle(color, centerx, piy, (pix-centerx), (centery-piy), layer);
+        }                                               //Filling top-left quadrant
+        for(int i = circircu/2; i < 3*(circircu/4); i++) {
+            pix = centerx + radius * sin(i*anglesteps);
+            piy = centery + radius * cos(i*anglesteps);
+            displayRectangle(color, pix, piy, (centerx-pix), (centery-piy), layer);
+        }                                               //Filling bottom-left quadrant
+        for(int i = 3*(circircu/4); i < circircu; i++) {
+            pix = centerx + radius * sin(i*anglesteps);
+            piy = centery + radius * cos(i*anglesteps);
+            displayRectangle(color, pix, centery, (centerx-pix), (piy-centery), layer);
         }
     }
     else{
-        if(fill) {
-            for(int i = 0; i < circircu/4; i++) {           //Filling bottom-right quadrant
-                pix = centerx + radius * sin(i*anglesteps);
-                piy = centery + radius * cos(i*anglesteps);
-                displayRectangle(color, centerx, centery, (pix-centerx), (piy-centery));
-            }
-            for(int i = circircu/4; i < circircu/2; i++) {  //Filling top-right quadrant
-                pix = centerx + radius * sin(i*anglesteps);
-                piy = centery + radius * cos(i*anglesteps);
-                displayRectangle(color, centerx, piy, (pix-centerx), (centery-piy));
-            }                                               //Filling top-left quadrant
-            for(int i = circircu/2; i < 3*(circircu/4); i++) {
-                pix = centerx + radius * sin(i*anglesteps);
-                piy = centery + radius * cos(i*anglesteps);
-                displayRectangle(color, pix, piy, (centerx-pix), (centery-piy));
-            }                                               //Filling bottom-left quadrant
-            for(int i = 3*(circircu/4); i < circircu; i++) {
-                pix = centerx + radius * sin(i*anglesteps);
-                piy = centery + radius * cos(i*anglesteps);
-                displayRectangle(color, pix, centery, (centerx-pix), (piy-centery));
-            }
-        }
-        else{
-            for(int i = 0; i < circircu; i++) {
-                pix = centerx + radius * sin(i*anglesteps);
-                piy = centery + radius * cos(i*anglesteps);
-                pixels[piy * width + pix] = color;
-            }   
-        }
+        for(int i = 0; i < circircu; i++) {
+            pix = centerx + radius * sin(i*anglesteps);
+            piy = centery + radius * cos(i*anglesteps);
+            layers[layer][piy * width + pix] = color;
+        }   
     }
 }
 
@@ -239,7 +247,7 @@ void VGADisplayManager::displayLine(EXT_RAM_BSS_ATTR int color, EXT_RAM_BSS_ATTR
     }
 }
 
-void VGADisplayManager::loadPicture(std::string imgname, int posx, int posy, int xwidth, int yheight, int imgx, int imgy) {
+void VGADisplayManager::loadPicture(std::string imgname, int posx, int posy, int xwidth, int yheight, int imgx, int imgy, int layer) {
 
     //Image parameters
     extern const uint8_t image_start8[] asm("_binary_output_raw_start");
@@ -270,7 +278,7 @@ void VGADisplayManager::loadPicture(std::string imgname, int posx, int posy, int
             for(int x = posx; x < (posx + xwidth); x++) {
                 yval = (y-posy)*ysteps;
                 xval = (x-posx)*xsteps;
-                pixels8[y * width + x] = img8[yval * width + xval]; 
+                layers[layer][y * width + x] = img8[yval * width + xval]; 
             }
         }
     }else{
@@ -284,18 +292,22 @@ void VGADisplayManager::loadPicture(std::string imgname, int posx, int posy, int
     }
 }
 
+void VGADisplayManager::displayPolygon(int color, int points[][2], bool fill) {
+
+}
+
 void VGADisplayManager::setBackground(int color) {
     if(bitpp == 8) {
         for(int y = 0; y < height; y++) {
             for(int x = 0; x < width; x++) {
-                pixels8[y * width + x] = color;
+                //pixels8[y * width + x] = color;
             }
         }
     }
     else{
         for(int y = 0; y < height; y++) {
             for(int x = 0; x < width; x++) {
-                pixels[y * width + x] = color;
+                //pixels[y * width + x] = color;
             }
         }
     }

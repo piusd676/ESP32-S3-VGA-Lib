@@ -2,3 +2,4 @@
 -> seperate array for easily moving objects like circles
 [Test programs]:Colors, functions, self verification
 Fetch img dimensions from metadata once implemented, implement img chooser(using string)
+Change bits once we use 16 bits
