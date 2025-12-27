@@ -1,3 +1,8 @@
+/*
+    Initiator class for VGA Output with selected params
+    This class should do nothing more than basic setup and handing over control to other functions
+*/
+
 #include "VGAESP32S3.h"
 
 void *framebuffer;
@@ -58,7 +63,7 @@ void VGAESP32S3::init(VGARes VGAResMode, VGADisplayManager VGADisp) {
         },
         .flags = {
             .fb_in_psram = 1,
-            .double_fb = VGAResMode.dbfb,
+            .double_fb = false,
         },
     };
     ESP_ERROR_CHECK(esp_lcd_new_rgb_panel(&panel_config, &panel_handle));

@@ -3,3 +3,7 @@
 [Test programs]:Colors, functions, self verification
 Fetch img dimensions from metadata once implemented, implement img chooser(using string)
 Change bits once we use 16 bits
+For scrolling logic: do double buffering properly from within VGADisplayManager (including ISR) to circumvent screen tearing and do wait for vsync
+Optimize display() logic
+Using scroller on any layer besides framebuffer is buggy
+baking background etc onto scroller? 

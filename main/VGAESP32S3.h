@@ -14,6 +14,7 @@ class VGAESP32S3
         esp_lcd_panel_handle_t panel_config;
         uint16_t *pixels;
         uint8_t *pixels8b;
+        static bool on_vsync(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t *edata, void *user_ctx);
     private:
         void *framebuffer;
 };
